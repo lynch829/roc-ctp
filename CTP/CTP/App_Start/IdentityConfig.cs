@@ -85,10 +85,35 @@ namespace CTP.Models
 
     public class EmailService : IIdentityMessageService
     {
-        public Task SendAsync(IdentityMessage message)
+        public async Task SendAsync(IdentityMessage message)
         {
             // Plug in your email service here to send an email.
-            return Task.FromResult(0);
+
+            // Credentials:
+            var credentialUserName = "ctpapp@rocpc.com";
+            var sentFrom = credentialUserName;
+            var pwd = "Ctp-12345";
+
+            // Configure the Client
+            System.Net.Mail.SmtpClient client = new System.Net.Mail.SmtpClient("mail.rocpc.com");
+            client.Port = 587;
+            client.DeliveryMethod = System.Net.Mail.SmtpDeliveryMethod.Network;
+            client.UseDefaultCredentials = false;
+
+            // Create the credentials:
+            System.Net.NetworkCredential credentials = new System.Net.NetworkCredential(credentialUserName, pwd);
+            client.EnableSsl = false;
+            client.Credentials = credentials;
+
+            // Create the message:
+            var mail =
+                new System.Net.Mail.MailMessage(sentFrom, message.Destination);
+
+            mail.Subject = message.Subject;
+            mail.Body = message.Body;
+
+            // Send:
+            await client.SendMailAsync(mail);
         }
     }
 
@@ -115,9 +140,9 @@ namespace CTP.Models
         public static void InitializeIdentityForEF(ApplicationDbContext db) {
             var userManager = HttpContext.Current.GetOwinContext().GetUserManager<ApplicationUserManager>();
             var roleManager = HttpContext.Current.GetOwinContext().Get<ApplicationRoleManager>();
-            const string name = "admin@example.com";
-            const string password = "Admin@123456";
-            const string roleName = "Admin";
+            const string name = "scottrmorey+ctp@gmail.com";
+            const string password = "Ctp-123456";
+            const string roleName = "SecurityAdmin";
 
             //Create Role Admin if it does not exist
             var role = roleManager.FindByName(roleName);
@@ -127,14 +152,19 @@ namespace CTP.Models
             }
 
             var user = userManager.FindByName(name);
+
             if (user == null) {
                 user = new ApplicationUser { UserName = name, Email = name };
                 var result = userManager.Create(user, password);
+
+                // Set email confirmation property
+                user.EmailConfirmed = true;
                 result = userManager.SetLockoutEnabled(user.Id, false);
             }
 
             // Add user admin to Role Admin if not already added
             var rolesForUser = userManager.GetRoles(user.Id);
+
             if (!rolesForUser.Contains(role.Name)) {
                 var result = userManager.AddToRole(user.Id, role.Name);
             }
