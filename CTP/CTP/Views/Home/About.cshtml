@@ -1,12 +1,50 @@
-﻿@{
-    ViewBag.Title = "About";
-}
-<hgroup>
+﻿@using CTP.Helpers
+    @{
+        ViewBag.Title = "About";
+    }
+
     <h2>@ViewBag.Title.</h2>
-    <h3>@ViewBag.Message</h3>
-</hgroup>
-<div class="row-fluid">
-    <div class="span12">
-        <p>Use this area to provide additional information.</p>
+
+    <div class="row">
+
+        <dl class="dl-horizontal">
+
+            <dt>Application</dt>
+            <dd style="font-size:large">Clinical Treatment Plan (CTP) Template Application</dd>
+
+            <dt>
+                Version
+            </dt>
+            <dd>
+                @Html.AppVersion()
+            </dd>
+
+            <dt>
+                Developed for
+            </dt>
+            <dd>
+                Radiation Oncology Centers, PC
+            </dd>
+
+            <dt>
+                by
+            </dt>
+            <dd>
+                BLUE i Productions, LLC
+            </dd>
+
+            <dt>
+                Email
+            </dt>
+            <dd>
+                <a href="mailto:support@bluei.net">support@bluei.net</a>
+            </dd>
+            <dt>
+
+            </dt>
+            <dd>
+                <br /><a href="http://bluei.net" target="_blank"><img src="~/Images/bi_wht_horiz_24.png" /></a>
+            </dd>
+
+        </dl>
     </div>
-</div>

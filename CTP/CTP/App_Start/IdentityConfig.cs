@@ -111,6 +111,7 @@ namespace CTP.Models
 
             mail.Subject = message.Subject;
             mail.Body = message.Body;
+            mail.IsBodyHtml = true;
 
             // Send:
             await client.SendMailAsync(mail);
@@ -142,13 +143,32 @@ namespace CTP.Models
             var roleManager = HttpContext.Current.GetOwinContext().Get<ApplicationRoleManager>();
             const string name = "scottrmorey+ctp@gmail.com";
             const string password = "Ctp-123456";
-            const string roleName = "SecurityAdmin";
+            const string roleSecurityAdminName = "SecurityAdmin";
+            const string roleTemplateUserName = "TemplateUser";
+            const string roleTemplateConfigurationName = "TemplateConfiguration";
 
             //Create Role Admin if it does not exist
-            var role = roleManager.FindByName(roleName);
-            if (role == null) {
-                role = new ApplicationRole(roleName);
-                var roleresult = roleManager.Create(role);
+            var roleSecurityAdmin = roleManager.FindByName(roleSecurityAdminName);
+            if (roleSecurityAdmin == null)
+            {
+                roleSecurityAdmin = new ApplicationRole(roleSecurityAdminName);
+                var roleresult = roleManager.Create(roleSecurityAdmin);
+            }
+
+            //Create Role TemplateUser if it does not exist
+            var roleTemplateUser = roleManager.FindByName(roleTemplateUserName);
+            if (roleTemplateUser == null)
+            {
+                roleTemplateUser = new ApplicationRole(roleTemplateUserName);
+                var roleresult = roleManager.Create(roleTemplateUser);
+            }
+
+            //Create Role TemplateConfig if it does not exist
+            var roleTemplateConfiguration = roleManager.FindByName(roleTemplateConfigurationName);
+            if (roleTemplateConfiguration == null)
+            {
+                roleTemplateConfiguration = new ApplicationRole(roleTemplateUserName);
+                var roleresult = roleManager.Create(roleTemplateConfiguration);
             }
 
             var user = userManager.FindByName(name);
@@ -165,8 +185,13 @@ namespace CTP.Models
             // Add user admin to Role Admin if not already added
             var rolesForUser = userManager.GetRoles(user.Id);
 
-            if (!rolesForUser.Contains(role.Name)) {
-                var result = userManager.AddToRole(user.Id, role.Name);
+            if (!rolesForUser.Contains(roleSecurityAdmin.Name))
+            {
+                var result = userManager.AddToRole(user.Id, roleSecurityAdmin.Name);
+            }
+            if (!rolesForUser.Contains(roleTemplateUser.Name))
+            {
+                var result = userManager.AddToRole(user.Id, roleTemplateUser.Name);
             }
         }
     }

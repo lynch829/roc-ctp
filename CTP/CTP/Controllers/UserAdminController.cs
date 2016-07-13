@@ -13,7 +13,7 @@ using System.Web.Mvc;
 
 namespace CTP.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "SecurityAdmin")]
     public class UsersAdminController : Controller
     {
         public UsersAdminController()
@@ -96,6 +96,8 @@ namespace CTP.Controllers
                 //Add User to the selected Roles 
                 if (adminresult.Succeeded)
                 {
+                    
+                    
                     if (selectedRoles != null)
                     {
                         var result = await UserManager.AddToRolesAsync(user.Id, selectedRoles);
@@ -114,7 +116,7 @@ namespace CTP.Controllers
                     return View();
 
                 }
-                return RedirectToAction("Index");
+                return RedirectToAction("ResendVerificationEmail", "Account", new { id=user.Id });
             }
             ViewBag.RoleId = new SelectList(RoleManager.Roles, "Name", "Name");
             return View();
@@ -234,5 +236,10 @@ namespace CTP.Controllers
             }
             return View();
         }
+
+
+        
+
+
     }
 }

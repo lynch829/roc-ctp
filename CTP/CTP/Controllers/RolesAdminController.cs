@@ -11,7 +11,7 @@ using System.Collections.Generic;
 
 namespace CTP.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "SecurityAdmin")]
     public class RolesAdminController : Controller
     {
         public RolesAdminController()

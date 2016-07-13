@@ -38,6 +38,10 @@
 </table>
 <p>
     @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |
+    @if (!Model.EmailConfirmed)
+    {
+        @Html.ActionLink("Resend Verification", "ResendVerificationEmail", "Account", new { id = Model.Id }, null) @Html.Raw(" |")
+    }  
     @Html.ActionLink("Back to List", "Index")
 </p>
 

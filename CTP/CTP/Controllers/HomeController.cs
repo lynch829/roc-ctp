@@ -1,11 +1,15 @@
-﻿using System.Web.Mvc;
+﻿using CTP.Models;
+using Microsoft.AspNet.Identity;
+using System.Web;
+using System.Web.Mvc;
 
 namespace CTP.Controllers
 {
     public class HomeController : Controller
     {
         public ActionResult Index()
-        {
+        {            
+            ViewBag.BodyClass = "wrapper";
             return View();
         }
 
@@ -17,11 +21,5 @@ namespace CTP.Controllers
             return View();
         }
 
-        public ActionResult Contact()
-        {
-            ViewBag.Message = "Your contact page.";
-
-            return View();
-        }
     }
 }

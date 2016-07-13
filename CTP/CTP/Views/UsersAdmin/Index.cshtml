@@ -1,10 +1,10 @@
 ﻿@model IEnumerable<CTP.Models.ApplicationUser>
 
 @{
-    ViewBag.Title = "Index";
+    ViewBag.Title = "Users";
 }
 
-<h2>Index</h2>
+<h2>@ViewBag.Title</h2>
 
 <p>
     @Html.ActionLink("Create New", "Create")
@@ -13,6 +13,9 @@
     <tr>
         <th>
             @Html.DisplayNameFor(model => model.UserName)
+        </th>
+        <th>
+            Email Confirmed
         </th>
         <th>
 
@@ -24,6 +27,13 @@
         <tr>
             <td>
                 @Html.DisplayFor(modelItem => item.UserName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.EmailConfirmed)
+                @if (!item.EmailConfirmed)
+                {
+                    @Html.ActionLink("Resend Verification", "ResendVerificationEmail", "Account", new { id = item.Id }, new { @class = "label label-primary" })
+                }
             </td>
             <td>
                 @Html.ActionLink("Edit", "Edit", new { id = item.Id }) |

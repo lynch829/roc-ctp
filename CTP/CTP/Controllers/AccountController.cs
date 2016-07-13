@@ -9,6 +9,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using System.Net;
 
 namespace CTP.Controllers
 {
@@ -65,17 +66,39 @@ namespace CTP.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Login(LoginViewModel model, string returnUrl)
         {
+            // ensure email is confirmed
+            var user = await UserManager.FindByNameAsync(model.Email);
+            if (user == null)
+            {
+                ModelState.AddModelError("", "Invalid login attempt.");
+                return View(model);
+            }
+
+            if (!(await UserManager.IsEmailConfirmedAsync(user.Id)))
+            {
+                ModelState.AddModelError("", "E-mail address has not been confirmed. Please follow the link in the validation email.");
+            }
+
+            
+
+            
             if (!ModelState.IsValid)
             {
                 return View(model);
             }
 
-            // This doen't count login failures towards lockout only two factor authentication
+
+            // This doesn't count login failures towards lockout only two factor authentication
             // To enable password failures to trigger lockout, change to shouldLockout: true
             var result = await SignInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, shouldLockout: false);
             switch (result)
             {
                 case SignInStatus.Success:
+                    bool isTemplateuser = await UserManager.IsInRoleAsync(user.Id, "TemplateUser");
+                    if (isTemplateuser)
+                    {
+                        return RedirectToAction("Index", "CtpTemplates");
+                    }
                     return RedirectToLocal(returnUrl);
                 case SignInStatus.LockedOut:
                     return View("Lockout");
@@ -155,7 +178,7 @@ namespace CTP.Controllers
                 {
                     var code = await UserManager.GenerateEmailConfirmationTokenAsync(user.Id);
                     var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
-                    await UserManager.SendEmailAsync(user.Id, "Confirm your account", "Please confirm your account by clicking this link: <a href=\"" + callbackUrl + "\">link</a>");
+                    await UserManager.SendEmailAsync(user.Id, "Please confirm your account with rocpc.com", "Please confirm your account by clicking this link: <a href=\"" + callbackUrl + "\">link</a>");
                     ViewBag.Link = callbackUrl;
                     return View("DisplayEmail");
                 }
@@ -165,6 +188,7 @@ namespace CTP.Controllers
             // If we got this far, something failed, redisplay form
             return View(model);
         }
+
 
         //
         // GET: /Account/ConfirmEmail
@@ -177,6 +201,31 @@ namespace CTP.Controllers
             }
             var result = await UserManager.ConfirmEmailAsync(userId, code);
             return View(result.Succeeded ? "ConfirmEmail" : "Error");
+        }
+
+        //
+        // Resend Verification Email
+        public async Task<ActionResult> ResendVerificationEmail(string id)
+        {
+            if (id == null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+            var user = await UserManager.FindByIdAsync(id);
+
+            var code = await UserManager.GenerateEmailConfirmationTokenAsync(user.Id);
+            var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
+            try
+            {
+                await UserManager.SendEmailAsync(user.Id, "Please confirm your account with rocpc.com", "Please confirm your account by clicking this link: <a href=\"" + callbackUrl + "\">link</a>");
+                ViewBag.Link = callbackUrl;
+            }
+            catch (Exception)
+            {
+                return View("Error");
+            }
+
+            return View("DisplayEmail");
         }
 
         //

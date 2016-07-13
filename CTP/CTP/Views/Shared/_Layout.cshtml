@@ -1,15 +1,24 @@
-﻿<!DOCTYPE html>
+﻿@using CTP.Helpers
+@{
+    string containerType = (string)ViewBag.Container;
+    if (string.IsNullOrEmpty(containerType))
+    {
+        containerType = "container";
+    }
+    string bodyClass = (string)ViewBag.BodyClass;
+    
+}
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewBag.Title - My ASP.NET Application</title>
+    <title>CTP - @ViewBag.Title</title>
     @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")
-
 </head>
-<body>
-    <div class="navbar @*navbar-inverse*@ navbar-fixed-top">
+<body class="@bodyClass">
+    <div class="navbar navbar-inverse navbar-fixed-top">
         <div class="container">
             <div class="navbar-header">
                 <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
@@ -17,29 +26,60 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                @Html.ActionLink("Application name", "Index", "Home", null, new { @class = "navbar-brand" })
+                @Html.ActionLink("CTP", "Index", "Home", null, new { @class = "navbar-brand" })
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
-                    <li>@Html.ActionLink("Home", "Index", "Home")</li>
-                    <li>@Html.ActionLink("About", "About", "Home")</li>
-                    <li>@Html.ActionLink("Contact", "Contact", "Home")</li>
+                    @if (Request.IsAuthenticated)
+                    {
+                        <li>@Html.MenuItem("Home", "Index", "Home")</li>
+                        
 
-                    @if (Request.IsAuthenticated && User.IsInRole("Admin")) {
-                        <li>@Html.ActionLink("RolesAdmin", "Index", "RolesAdmin")</li>
-                        <li>@Html.ActionLink("UsersAdmin", "Index", "UsersAdmin")</li>
+                        if (User.IsInRole("TemplateUser"))
+                        {
+                            <li>@Html.MenuItem("Templates", "Index", "CtpTemplates")</li>
+                        }
+
+                        <!-- Config Menu -->
+                        if (User.IsInRole("TemplateConfiguration"))
+                        {
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Configure <span class="caret"></span></a>
+                                <ul class="dropdown-menu inverse-dropdown">
+                                    <li class ="disabled"><a>CTP Master</a></li>
+                                    <li class="disabled"><a>Dose Constraint Tables</a></li>
+                                    <li class="disabled"><a>Template Categories</a></li>
+                                    
+                                </ul>
+                            </li>
+                        }
+
+                        <!-- Security Menu -->
+                        if (User.IsInRole("SecurityAdmin"))
+                        {
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Security <span class="caret"></span></a>
+                                <ul class="dropdown-menu inverse-dropdown">
+                                    <li>@Html.MenuItem("Roles", "Index", "RolesAdmin")</li>
+                                    <li>@Html.MenuItem("Users", "Index", "UsersAdmin")</li>
+                                </ul>
+                            </li>
+
+                        }
+                        <li>@Html.MenuItem("About", "About", "Home")</li>
                     }
                 </ul>
                 @Html.Partial("_LoginPartial")
             </div>
         </div>
     </div>
-    <div class="container body-content">
+
+    <div class="@containerType body-content">
         @RenderBody()
-        <hr />
-        <footer>
-            <p>&copy; @DateTime.Now.Year - TEMPLATE</p>
-        </footer>
+        @*<hr />
+            <footer>
+                <p>&copy; @DateTime.Now.Year - TEMPLATE</p>
+            </footer>*@
     </div>
 
     @Scripts.Render("~/bundles/jquery")
